@@ -1,0 +1,63 @@
+version: '3.7'
+
+services:
+  hd-mysql:
+    container_name: mysql
+    image: mysql:5
+    restart: always
+    environment:
+      - MYSQL_USER=USER_ID
+      - MYSQL_PASSWORD=USER_PASSWORD
+      - MYSQL_ROOT_PASSWORD=USER_PASSWORD
+      - MYSQL_DATABASE=work_database
+      - TZ=Asia/Seoul
+    ports:
+      - '3306:3306'
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    volumes:
+      - '.\data\mysql:/var/lib/mysql'
+
+  hd-redis:
+    container_name: redis
+    image: bitnami/redis:latest
+    restart: always
+    environment:
+      - REDIS_PASSWORD=USER_PASSWORD
+      - TZ=Asia/Seoul
+    ports:
+      - '6379:6379'
+    volumes:
+      - '.\data\redis:/data'
+
+  hd-mongo:
+    container_name: mongo
+    image: mongo
+    restart: always
+    environment:
+      - TZ=Asia/Seoul
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=USER_PASSWORD
+      - MONGO_INITDB_DATABASE=work_database
+    ports:
+      - '27017:27017'
+    volumes:
+      # 윈도우의 경우 볼륨을 정해 놓으면 시작이 안 되는 문제가 있음.
+      # - '.\data\mongo:/data/db'
+      - './init-db/:/docker-entrypoint-initdb.d'
+
+  hd-mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    restart: always
+    depends_on:
+        - hd-mongo
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: USER_PASSWORD
+
+networks: 
+  default:
+    external:
+      name: dbpack
