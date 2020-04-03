@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  hd-mysql:
+  mysql:
     container_name: mysql
     image: mysql:5
     restart: always
@@ -17,7 +17,7 @@ services:
     volumes:
       - '.\data\mysql:/var/lib/mysql'
 
-  hd-redis:
+  redis:
     container_name: redis
     image: bitnami/redis:latest
     restart: always
@@ -29,7 +29,7 @@ services:
     volumes:
       - '.\data\redis:/data'
 
-  hd-mongo:
+  mongo:
     container_name: mongo
     image: mongo
     restart: always
@@ -45,12 +45,12 @@ services:
       # - '.\data\mongo:/data/db'
       - './init-db/:/docker-entrypoint-initdb.d'
 
-  hd-mongo-express:
+  mongo-express:
     container_name: mongo-express
     image: mongo-express
     restart: always
     depends_on:
-        - hd-mongo
+        - mongo
     ports:
       - 8081:8081
     environment:
